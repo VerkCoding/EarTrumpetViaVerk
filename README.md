@@ -1,9 +1,24 @@
-# EarTrumpet
+# EarTrumpet via Verk
 
-[![GitHub issues](https://img.shields.io/github/issues/File-New-Project/EarTrumpet?style=flat-square)](https://github.com/File-New-Project/EarTrumpet/issues) [![GitHub forks](https://img.shields.io/github/forks/File-New-Project/EarTrumpet?style=flat-square)](https://github.com/File-New-Project/EarTrumpet/network) [![GitHub stars](https://img.shields.io/github/stars/File-New-Project/EarTrumpet?style=flat-square)](https://github.com/File-New-Project/EarTrumpet/stargazers) [![Nuget package](https://img.shields.io/chocolatey/v/eartrumpet?style=flat-square)](https://chocolatey.org/packages/eartrumpet) ![Maintenance status](https://img.shields.io/maintenance/yes/2025?style=flat-square)
+This repository is a customized fork of the EarTrumpet project. EarTrumpet is a native Windows desktop application that replaces the default volume control mixer, providing advanced per-application volume routing and control by interfacing with low-level Windows Core Audio APIs. 
 
-![EarTrumpet Screenshot](./Graphics/hero.gif)
+This specific fork ("via Verk") introduces structural modifications to the graphical user interface and routing workflows. The primary objective of these modifications is to reduce user friction when managing multiple audio endpoints and dynamically routing active application audio.
 
+## Custom Modifications
+
+The following architectural and behavioral changes distinguish this build from the upstream repository:
+
+*   **Unified Dynamic Device Flyout:** The manual "Expand" functionality for secondary devices has been deprecated. The application now employs a unified view where the designated Default Speaker is permanently anchored at the top of the interface. Secondary devices are evaluated dynamically and will only render in the flyout if they are actively hosting non-system application audio. When an application ceases playback, the host device is automatically removed from the active view.
+*   **Universal Right-Click Context Routing:** The application routing workflow has been consolidated into a native context menu. Users may right-click any application item—regardless of its current host device—to instantiate a routing menu. Selecting an alternative playback device from this menu instantly re-routes the application's audio stream and updates the dynamic flyout accordingly.
+*   **System Audio Filtering:** The application view models have been updated to explicitly filter the default Windows "System Sounds" session. Secondary devices that are only broadcasting system sounds are classified as inactive and remain hidden from the primary user interface.
+*   **Modern Compilation Compliance:** The project files (`.csproj`) have been updated with dynamic path resolution for newer Windows 10 SDKs (e.g., 10.0.19041.0), ensuring immediate compilation compatibility with Visual Studio 2022.
+*   **Diagnostic Stability:** Safe-casting and null-conditional operators were introduced to the internal `SnapshotData` diagnostic routines to prevent recursive NullReferenceExceptions if the application crashes prior to the full initialization of the UI Theme Manager.
+
+## Upstream Project Information
+
+The following sections contain the original documentation and credits from the upstream EarTrumpet repository maintained by the File-New-Project organization.
+
+---
 
 ## Awards
 

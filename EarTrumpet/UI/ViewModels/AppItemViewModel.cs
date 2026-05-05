@@ -38,8 +38,33 @@ namespace EarTrumpet.UI.ViewModels
 
         public bool IsMovable => !_session.IsSystemSoundsSession &&
                                   Environment.OSVersion.IsAtLeast(OSVersions.RS4);
+        public bool IsSystemSounds => _session.IsSystemSoundsSession;
         public string PersistedOutputDevice => _session.Parent.Parent is IAudioDeviceManagerWindowsAudio ?
             ((IAudioDeviceManagerWindowsAudio)_session.Parent.Parent).GetDefaultEndPoint(ProcessId) : "";
+
+        public IEnumerable<ContextMenuItem> ContextMenuItems
+        {
+            get
+            {
+                var parentDevice = Parent as DeviceViewModel;
+                if (parentDevice != null)
+                {
+                    var collection = parentDevice.ParentCollection;
+                    if (collection != null)
+                    {
+                        var items = collection.AllDevices.Select(dev => new ContextMenuItem
+                        {
+                            DisplayName = dev.DisplayName,
+                            IsChecked = dev.Id == parentDevice.Id,
+                            Command = new UI.Helpers.RelayCommand(() => collection.MoveAppToDevice(this, dev))
+                        }).ToList();
+
+                        return items;
+                    }
+                }
+                return new List<ContextMenuItem>();
+            }
+        }
 
         public IDeviceViewModel Parent
         {

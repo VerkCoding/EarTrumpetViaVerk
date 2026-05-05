@@ -70,7 +70,7 @@ namespace EarTrumpet.Diagnosis
                     { "IsRTL", () => SystemSettings.IsRTL },
                     { "IsTransparencyEnabled", () => SystemSettings.IsTransparencyEnabled },
                     { "UseAccentColor", () => SystemSettings.UseAccentColor },
-                    { "AnimationsEnabled", () => Manager.Current.AnimationsEnabled },
+                    { "AnimationsEnabled", () => Manager.Current?.AnimationsEnabled ?? false },
                     { "IsHighContrast", () => SystemParameters.HighContrast },
                     { "HasIdentity", () => EarTrumpet.App.HasIdentity },
                     { "IsShuttingDown", () => EarTrumpet.App.IsShuttingDown },

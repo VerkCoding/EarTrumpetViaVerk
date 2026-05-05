@@ -76,15 +76,6 @@ namespace EarTrumpet.UI.ViewModels
             ChangeState(FlyoutViewState.Hidden);
         }
 
-        private void AddDevice(DeviceViewModel device)
-        {
-            if (IsExpanded || Devices.Count == 0)
-            {
-                device.Apps.CollectionChanged += Apps_CollectionChanged;
-                Devices.Insert(0, device);
-            }
-        }
-
         private void Apps_CollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
         {
             switch (e.Action)
@@ -98,17 +89,8 @@ namespace EarTrumpet.UI.ViewModels
                     break;
             }
 
+            EvaluateAllDevicesVisibility();
             InvalidateWindowSize();
-        }
-
-        private void RemoveDevice(string id)
-        {
-            var existing = Devices.FirstOrDefault(d => d.Id == id);
-            if (existing != null)
-            {
-                existing.Apps.CollectionChanged -= Apps_CollectionChanged;
-                Devices.Remove(existing);
-            }
         }
 
         private void AllDevices_CollectionChanged(object sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
@@ -116,29 +98,63 @@ namespace EarTrumpet.UI.ViewModels
             switch (e.Action)
             {
                 case NotifyCollectionChangedAction.Add:
-                    AddDevice((DeviceViewModel)e.NewItems[0]);
+                    var newDevice = (DeviceViewModel)e.NewItems[0];
+                    newDevice.Apps.CollectionChanged += Apps_CollectionChanged;
                     break;
 
                 case NotifyCollectionChangedAction.Remove:
-                    RemoveDevice(((DeviceViewModel)e.OldItems[0]).Id);
+                    var oldDevice = (DeviceViewModel)e.OldItems[0];
+                    oldDevice.Apps.CollectionChanged -= Apps_CollectionChanged;
+                    Devices.Remove(oldDevice);
                     break;
 
                 case NotifyCollectionChangedAction.Reset:
-                    for (int i = Devices.Count - 1; i >= 0; i--)
+                    foreach (var device in _mainViewModel.AllDevices)
                     {
-                        RemoveDevice(Devices[i].Id);
+                        device.Apps.CollectionChanged -= Apps_CollectionChanged;
                     }
+                    Devices.Clear();
 
                     foreach (var device in _mainViewModel.AllDevices)
                     {
-                        AddDevice(device);
+                        device.Apps.CollectionChanged += Apps_CollectionChanged;
                     }
-
-                    OnDefaultPlaybackDeviceChanged(null, _mainViewModel.Default);
                     break;
 
                 default:
                     throw new NotImplementedException();
+            }
+
+            EvaluateAllDevicesVisibility();
+        }
+
+        private void EvaluateDeviceVisibility(DeviceViewModel device)
+        {
+            bool hasNonSystemSoundApps = device.Apps.Any(a => !a.IsSystemSounds);
+            bool shouldBeVisible = IsExpanded || device.Id == _mainViewModel.Default?.Id || hasNonSystemSoundApps;
+            bool isVisible = Devices.Contains(device);
+
+            if (shouldBeVisible && !isVisible)
+            {
+                Devices.Insert(0, device);
+            }
+            else if (!shouldBeVisible && isVisible)
+            {
+                Devices.Remove(device);
+            }
+        }
+
+        private void EvaluateAllDevicesVisibility()
+        {
+            foreach (var device in _mainViewModel.AllDevices)
+            {
+                EvaluateDeviceVisibility(device);
+            }
+
+            var defaultDevice = Devices.FirstOrDefault(d => d.Id == _mainViewModel.Default?.Id);
+            if (defaultDevice != null)
+            {
+                Devices.Move(Devices.IndexOf(defaultDevice), 0);
             }
 
             UpdateTextVisibility();
@@ -157,27 +173,7 @@ namespace EarTrumpet.UI.ViewModels
         {
             // No longer any devices.
             if (e == null) return;
-
-            var foundDevice = Devices.FirstOrDefault(d => d.Id == e.Id);
-            if (foundDevice != null)
-            {
-                // Push to bottom.
-                Devices.Move(Devices.IndexOf(foundDevice), Devices.Count - 1);
-            }
-            else
-            {
-                var foundAllDevice = _mainViewModel.AllDevices.FirstOrDefault(d => d.Id == e.Id);
-                if (foundAllDevice != null)
-                {
-                    // We found the device in AllDevices which was not in Devices.
-                    // Thus: We are collapsed and can dump the single device in Devices:
-                    Devices.Clear();
-                    foundAllDevice.Apps.CollectionChanged += Apps_CollectionChanged;
-                    Devices.Add(foundAllDevice);
-                }
-            }
-            UpdateTextVisibility();
-            RaiseDevicesChanged();
+            EvaluateAllDevicesVisibility();
         }
 
         private void UpdateTextVisibility()
@@ -193,34 +189,7 @@ namespace EarTrumpet.UI.ViewModels
         {
             IsExpanded = !IsExpanded;
             _settings.IsExpanded = IsExpanded;
-            if (IsExpanded)
-            {
-                // Add any that aren't existing.
-                foreach (var device in _mainViewModel.AllDevices)
-                {
-                    if (!Devices.Contains(device))
-                    {
-                        device.Apps.CollectionChanged += Apps_CollectionChanged;
-                        Devices.Insert(0, device);
-                    }
-                }
-            }
-            else
-            {
-                // Remove all but the default.
-                for (int i = Devices.Count - 1; i >= 0; i--)
-                {
-                    var device = Devices[i];
-                    if (device.Id != _mainViewModel.Default?.Id)
-                    {
-                        device.Apps.CollectionChanged -= Apps_CollectionChanged;
-                        Devices.Remove(device);
-                    }
-                }
-            }
-
-            UpdateTextVisibility();
-            RaiseDevicesChanged();
+            EvaluateAllDevicesVisibility();
         }
 
         private void InvalidateWindowSize()

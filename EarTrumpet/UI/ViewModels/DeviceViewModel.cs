@@ -39,6 +39,18 @@ namespace EarTrumpet.UI.ViewModels
         public string InterfaceName => ((IAudioDeviceWindowsAudio)_device).InterfaceName;
         public ObservableCollection<IAppItemViewModel> Apps { get; }
 
+        public DeviceCollectionViewModel ParentCollection
+        {
+            get
+            {
+                if (_parent.TryGetTarget(out var parent))
+                {
+                    return parent;
+                }
+                return null;
+            }
+        }
+
         public bool IsDisplayNameVisible
         {
             get => _isDisplayNameVisible;

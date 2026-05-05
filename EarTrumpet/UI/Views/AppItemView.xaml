@@ -6,6 +6,9 @@
              Height="{DynamicResource Mutable_AppItemCellHeight}"
              IsTabStop="False">
     <Grid Name="GridRoot" Background="Transparent">
+        <Grid.ContextMenu>
+            <ContextMenu ItemContainerTemplateSelector="{StaticResource MenuSelector}" ItemsSource="{Binding ContextMenuItems}" />
+        </Grid.ContextMenu>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="{DynamicResource Mutable_IconCellWidth}" />
             <ColumnDefinition Width="*" />
