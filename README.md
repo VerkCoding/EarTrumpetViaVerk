@@ -20,12 +20,13 @@ The following structural and behavioral changes distinguish this build from the 
 
 As a customized fork, this version is not distributed via the Microsoft Store and must be installed manually.
 
+### Preparation: Install EarTrumpet as Normal.
+
 ### Option 1: Pre-built Release Deployment
 If you currently utilize the official Microsoft Store version of EarTrumpet, it is installed in the restricted `C:\Program Files\WindowsApps` directory and cannot be directly overwritten. You must perform a clean replacement to utilize this fork.
 
-1. **Uninstall Upstream Build:** Open the Windows Start Menu, locate the existing "EarTrumpet" application, right-click, and select **Uninstall**. This step is mandatory to prevent system tray conflicts.
-2. **Download Binary:** Navigate to the [Releases](https://github.com/VerkCoding/EarTrumpetViaVerk/releases) tab of this repository and download the latest compiled `EarTrumpet.exe`.
-3. **Configure Autostart:** Move the downloaded executable to a permanent directory on your local filesystem. Create a shortcut to the executable and place it within your Windows Startup directory (accessible via `Win + R` -> `shell:startup`). This ensures the application initializes upon system boot.
+1. **Download Binary:** Navigate to the [Releases](https://github.com/VerkCoding/EarTrumpetViaVerk/releases) tab of this repository and download the latest compiled `EarTrumpet.exe`.
+2. **Configure Autostart:** Move the downloaded executable to a permanent directory on your local filesystem. Create a shortcut to the executable and place it within your Windows Startup directory (accessible via `Win + R` -> `shell:startup`). This ensures the application initializes upon system boot.
 
 ### Option 2: Source Compilation
 For developers wishing to compile the application locally:
